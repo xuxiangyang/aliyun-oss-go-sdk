@@ -93,7 +93,7 @@ func (bucket Bucket) DoPutObject(request *PutObjectRequest, options []Option) (*
 		options = addContentType(options, request.ObjectKey)
 	}
 
-	resp, err := bucket.do("PUT", request.ObjectKey, "", "", options, request.Reader)
+	resp, err := bucket.Do("PUT", request.ObjectKey, "", "", options, request.Reader)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (bucket Bucket) GetObjectToFile(objectKey, filePath string, options ...Opti
 // error  操作无错误为nil，非nil为错误信息。
 //
 func (bucket Bucket) DoGetObject(request *GetObjectRequest, options []Option) (*GetObjectResult, error) {
-	resp, err := bucket.do("GET", request.ObjectKey, "", "", options, nil)
+	resp, err := bucket.Do("GET", request.ObjectKey, "", "", options, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (bucket Bucket) DoGetObject(request *GetObjectRequest, options []Option) (*
 func (bucket Bucket) CopyObject(srcObjectKey, destObjectKey string, options ...Option) (CopyObjectResult, error) {
 	var out CopyObjectResult
 	options = append(options, CopySource(bucket.BucketName, url.QueryEscape(srcObjectKey)))
-	resp, err := bucket.do("PUT", destObjectKey, "", "", options, nil)
+	resp, err := bucket.Do("PUT", destObjectKey, "", "", options, nil)
 	if err != nil {
 		return out, err
 	}
@@ -363,7 +363,7 @@ func (bucket Bucket) DoAppendObject(request *AppendObjectRequest, options []Opti
 // error 操作无错误为nil，非nil为错误信息。
 //
 func (bucket Bucket) DeleteObject(objectKey string) error {
-	resp, err := bucket.do("DELETE", objectKey, "", "", nil, nil)
+	resp, err := bucket.Do("DELETE", objectKey, "", "", nil, nil)
 	if err != nil {
 		return err
 	}
@@ -403,7 +403,7 @@ func (bucket Bucket) DeleteObjects(objectKeys []string, options ...Option) (Dele
 	sum := md5.Sum(bs)
 	b64 := base64.StdEncoding.EncodeToString(sum[:])
 	options = append(options, ContentMD5(b64))
-	resp, err := bucket.do("POST", "", "delete"+encode, "delete", options, buffer)
+	resp, err := bucket.Do("POST", "", "delete"+encode, "delete", options, buffer)
 	if err != nil {
 		return out, err
 	}
@@ -464,7 +464,7 @@ func (bucket Bucket) ListObjects(options ...Option) (ListObjectsResult, error) {
 		return out, err
 	}
 
-	resp, err := bucket.do("GET", "", params, "", nil, nil)
+	resp, err := bucket.Do("GET", "", params, "", nil, nil)
 	if err != nil {
 		return out, err
 	}
@@ -505,7 +505,7 @@ func (bucket Bucket) SetObjectMeta(objectKey string, options ...Option) error {
 // error  操作无错误为nil，非nil为错误信息。
 //
 func (bucket Bucket) GetObjectDetailedMeta(objectKey string, options ...Option) (http.Header, error) {
-	resp, err := bucket.do("HEAD", objectKey, "", "", options, nil)
+	resp, err := bucket.Do("HEAD", objectKey, "", "", options, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -526,7 +526,7 @@ func (bucket Bucket) GetObjectDetailedMeta(objectKey string, options ...Option) 
 // error 操作无错误为nil，非nil为错误信息。
 //
 func (bucket Bucket) GetObjectMeta(objectKey string) (http.Header, error) {
-	resp, err := bucket.do("GET", objectKey, "?objectMeta", "", nil, nil)
+	resp, err := bucket.Do("GET", objectKey, "?objectMeta", "", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -554,7 +554,7 @@ func (bucket Bucket) GetObjectMeta(objectKey string) (http.Header, error) {
 //
 func (bucket Bucket) SetObjectACL(objectKey string, objectACL ACLType) error {
 	options := []Option{ObjectACL(objectACL)}
-	resp, err := bucket.do("PUT", objectKey, "acl", "acl", options, nil)
+	resp, err := bucket.Do("PUT", objectKey, "acl", "acl", options, nil)
 	if err != nil {
 		return err
 	}
@@ -572,7 +572,7 @@ func (bucket Bucket) SetObjectACL(objectKey string, objectACL ACLType) error {
 //
 func (bucket Bucket) GetObjectACL(objectKey string) (GetObjectACLResult, error) {
 	var out GetObjectACLResult
-	resp, err := bucket.do("GET", objectKey, "acl", "acl", nil, nil)
+	resp, err := bucket.Do("GET", objectKey, "acl", "acl", nil, nil)
 	if err != nil {
 		return out, err
 	}
@@ -583,7 +583,7 @@ func (bucket Bucket) GetObjectACL(objectKey string) (GetObjectACLResult, error) 
 }
 
 // Private
-func (bucket Bucket) do(method, objectName, urlParams, subResource string,
+func (bucket Bucket) Do(method, objectName, urlParams, subResource string,
 	options []Option, data io.Reader) (*Response, error) {
 	headers := make(map[string]string)
 	err := handleOptions(headers, options)
